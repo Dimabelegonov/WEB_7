@@ -1,9 +1,10 @@
 import sys
+import os
 from io import BytesIO
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
-# Этот класс поможет нам сделать картинку из потока байт
 
 import requests
 from PIL import Image
@@ -13,9 +14,35 @@ class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
         uic.loadUi("main_ui.ui", self)
-        pixmap = QPixmap("main_pic.png")
         self.setWindowTitle("MAP")
+        self.z = 14
+        self.get_map()
+
+    def get_map(self):
+        """Получаем изображение карты"""
+        adress = "Москва Кремль"
+        toponym_longitude, toponym_lattitude = get_coord(adress)
+
+        delta = get_spn(adress)
+        image_map = get_maps(toponym_longitude, toponym_lattitude, delta, self.z)
+        image = Image.open(BytesIO(image_map))
+        image.save("main_pic.png")
+        # Создадим картинку
+        # и тут же ее покажем встроенным просмотрщиком операционной системы
+        self.show_map()
+
+    def show_map(self):
+        """Отрисовываем изображение"""
+        pixmap = QPixmap("main_pic.png")
         self.main_picture.setPixmap(pixmap)
+
+    def keyPressEvent(self, QKeyEvent):
+        if QKeyEvent.key() == Qt.Key_PageUp:
+            self.z = min(17, self.z + 1)
+            self.get_map()
+        elif QKeyEvent.key() == Qt.Key_PageDown:
+            self.z = max(0, self.z - 1)
+            self.get_map()
 
 
 def get_coord(adress):
@@ -45,14 +72,14 @@ def get_coord(adress):
     return toponym_longitude, toponym_lattitude
 
 
-def get_maps(coord1, coord2, delta):
+def get_maps(coord1, coord2, delta, z):
     map_params = {
         "ll": ",".join([coord1, coord2]),
-        "spn": delta,
+        # "spn": delta,
+        "z": str(z),
         "l": "map",
         "pt": ",".join([coord1, coord2, "pmwtm1"])
     }
-
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     # ... и выполняем запрос
     response = requests.get(map_api_server, params=map_params)
@@ -60,12 +87,12 @@ def get_maps(coord1, coord2, delta):
     return response.content
 
 
-def get_spn(adress):
+def get_spn(address):
     geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
 
     geocoder_params = {
         "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
-        "geocode": adress,
+        "geocode": address,
         "format": "json"}
 
     response = requests.get(geocoder_api_server, params=geocoder_params)
@@ -92,18 +119,6 @@ def get_spn(adress):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    adress = "Москва Кремль"
-    toponym_longitude, toponym_lattitude = get_coord(adress)
-
-    delta = get_spn(adress)
-
-    image_map = get_maps(toponym_longitude, toponym_lattitude, delta)
-
-    image = Image.open(BytesIO(image_map))
-    image.save("main_pic.png")
-    # Создадим картинку
-    # и тут же ее покажем встроенным просмотрщиком операционной системы
     QT_window = MainWindow()
     QT_window.show()
     sys.exit(app.exec())
-

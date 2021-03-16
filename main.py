@@ -16,12 +16,16 @@ class MainWindow(QWidget):
         uic.loadUi("main_ui.ui", self)
         self.setWindowTitle("MAP")
         self.z = 14
+        self.d_x = 0.0
+        self.d_y = 0.0
         self.get_map()
 
     def get_map(self):
         """Получаем изображение карты"""
         adress = "Москва Кремль"
         toponym_longitude, toponym_lattitude = get_coord(adress)
+        toponym_lattitude = float(toponym_lattitude) + self.d_x
+        toponym_longitude = float(toponym_longitude) + self.d_y
 
         delta = get_spn(adress)
         image_map = get_maps(toponym_longitude, toponym_lattitude, delta, self.z)
@@ -42,6 +46,18 @@ class MainWindow(QWidget):
             self.get_map()
         elif QKeyEvent.key() == Qt.Key_PageDown:
             self.z = max(0, self.z - 1)
+            self.get_map()
+        elif QKeyEvent.key() == Qt.Key_Right:
+            self.d_y += 0.001
+            self.get_map()
+        elif QKeyEvent.key() == Qt.Key_Up:
+            self.d_x += 0.001
+            self.get_map()
+        elif QKeyEvent.key() == Qt.Key_Left:
+            self.d_y -= 0.001
+            self.get_map()
+        elif QKeyEvent.key() == Qt.Key_Down:
+            self.d_x -= 0.001
             self.get_map()
 
 
@@ -74,11 +90,11 @@ def get_coord(adress):
 
 def get_maps(coord1, coord2, delta, z):
     map_params = {
-        "ll": ",".join([coord1, coord2]),
+        "ll": ",".join([str(coord1), str(coord2)]),
         # "spn": delta,
         "z": str(z),
         "l": "map",
-        "pt": ",".join([coord1, coord2, "pmwtm1"])
+        # "pt": ",".join([str(coord1), str(coord2), "pmwtm1"])
     }
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     # ... и выполняем запрос

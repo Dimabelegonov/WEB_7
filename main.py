@@ -19,8 +19,10 @@ class MainWindow(QWidget):
         self.d_x = 0.0
         self.d_y = 0.0
         self.map_1 = "map"
+        self.address = "Кремль Москва"
         self.get_map()
         self.change_map.buttonClicked.connect(self.change_)
+        self.button_search.clicked.connect(self.search)
 
     def change_(self, button):
         if button.text() == "Схема":
@@ -33,14 +35,17 @@ class MainWindow(QWidget):
             self.map_1 = "sat,skl"
             self.get_map()
 
+    def search(self):
+        self.address = self.text_search.text()
+        self.get_map()
+
     def get_map(self):
         """Получаем изображение карты"""
-        adress = "Москва Кремль"
-        toponym_longitude, toponym_lattitude = get_coord(adress)
+        toponym_longitude, toponym_lattitude = get_coord(self.address)
         toponym_lattitude = float(toponym_lattitude) + self.d_x
         toponym_longitude = float(toponym_longitude) + self.d_y
 
-        delta = get_spn(adress)
+        delta = get_spn(self.address)
         image_map = get_maps(toponym_longitude, toponym_lattitude, delta, self.z, self.map_1)
         image = Image.open(BytesIO(image_map))
         image.save("main_pic.png")
@@ -107,7 +112,7 @@ def get_maps(coord1, coord2, delta, z, map_1):
         # "spn": delta,
         "z": str(z),
         "l": map_1,
-        # "pt": ",".join([str(coord1), str(coord2), "pmwtm1"])
+        "pt": ",".join([str(coord1), str(coord2), "pmwtm1"])
     }
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     # ... и выполняем запрос

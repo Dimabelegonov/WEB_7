@@ -20,7 +20,8 @@ class MainWindow(QWidget):
         self.d_y = 0.0
         self.map_1 = "map"
         self.address = "Кремль Москва"
-        self.get_map()
+        self.coord_flag = []
+        self.get_map(new=True)
         self.change_map.buttonClicked.connect(self.change_)
         self.button_search.clicked.connect(self.search)
 
@@ -37,16 +38,21 @@ class MainWindow(QWidget):
 
     def search(self):
         self.address = self.text_search.text()
-        self.get_map()
+        self.get_map(new=True)
 
-    def get_map(self):
+    def get_map(self, new=False):
         """Получаем изображение карты"""
+        if new:
+            self.d_x = 0.0
+            self.d_y = 0.0
         toponym_longitude, toponym_lattitude = get_coord(self.address)
         toponym_lattitude = float(toponym_lattitude) + self.d_x
         toponym_longitude = float(toponym_longitude) + self.d_y
+        if new:
+            self.coord_flag = [toponym_longitude, toponym_lattitude]
 
         delta = get_spn(self.address)
-        image_map = get_maps(toponym_longitude, toponym_lattitude, delta, self.z, self.map_1)
+        image_map = get_maps(toponym_longitude, toponym_lattitude, self.coord_flag, delta, self.z, self.map_1)
         image = Image.open(BytesIO(image_map))
         image.save("main_pic.png")
         # Создадим картинку
@@ -106,13 +112,13 @@ def get_coord(adress):
     return toponym_longitude, toponym_lattitude
 
 
-def get_maps(coord1, coord2, delta, z, map_1):
+def get_maps(coord1, coord2, flag, delta, z, map_1):
     map_params = {
         "ll": ",".join([str(coord1), str(coord2)]),
         # "spn": delta,
         "z": str(z),
         "l": map_1,
-        "pt": ",".join([str(coord1), str(coord2), "pmwtm1"])
+        "pt": ",".join([str(flag[0]), str(flag[1]), "pmwtm1"])
     }
     map_api_server = "http://static-maps.yandex.ru/1.x/"
     # ... и выполняем запрос

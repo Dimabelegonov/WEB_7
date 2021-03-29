@@ -18,7 +18,20 @@ class MainWindow(QWidget):
         self.z = 14
         self.d_x = 0.0
         self.d_y = 0.0
+        self.map_1 = "map"
         self.get_map()
+        self.change_map.buttonClicked.connect(self.change_)
+
+    def change_(self, button):
+        if button.text() == "Схема":
+            self.map_1 = "map"
+            self.get_map()
+        elif button.text() == "Спутник":
+            self.map_1 = "sat"
+            self.get_map()
+        elif button.text() == "Гибрид":
+            self.map_1 = "sat,skl"
+            self.get_map()
 
     def get_map(self):
         """Получаем изображение карты"""
@@ -28,7 +41,7 @@ class MainWindow(QWidget):
         toponym_longitude = float(toponym_longitude) + self.d_y
 
         delta = get_spn(adress)
-        image_map = get_maps(toponym_longitude, toponym_lattitude, delta, self.z)
+        image_map = get_maps(toponym_longitude, toponym_lattitude, delta, self.z, self.map_1)
         image = Image.open(BytesIO(image_map))
         image.save("main_pic.png")
         # Создадим картинку
@@ -88,12 +101,12 @@ def get_coord(adress):
     return toponym_longitude, toponym_lattitude
 
 
-def get_maps(coord1, coord2, delta, z):
+def get_maps(coord1, coord2, delta, z, map_1):
     map_params = {
         "ll": ",".join([str(coord1), str(coord2)]),
         # "spn": delta,
         "z": str(z),
-        "l": "map",
+        "l": map_1,
         # "pt": ",".join([str(coord1), str(coord2), "pmwtm1"])
     }
     map_api_server = "http://static-maps.yandex.ru/1.x/"

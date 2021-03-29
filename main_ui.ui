@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>500</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,7 +26,52 @@
     <string/>
    </property>
   </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>520</y>
+     <width>481</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QPushButton" name="pushButton_1">
+      <property name="text">
+       <string>Схема</string>
+      </property>
+      <attribute name="buttonGroup">
+       <string notr="true">change_map</string>
+      </attribute>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_2">
+      <property name="text">
+       <string>Спутник</string>
+      </property>
+      <attribute name="buttonGroup">
+       <string notr="true">change_map</string>
+      </attribute>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pushButton_3">
+      <property name="text">
+       <string>Гибрид</string>
+      </property>
+      <attribute name="buttonGroup">
+       <string notr="true">change_map</string>
+      </attribute>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="change_map"/>
+ </buttongroups>
 </ui>
